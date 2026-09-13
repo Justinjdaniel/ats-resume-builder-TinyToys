@@ -1,0 +1,38 @@
+# robots.txt for CurateCV (https://curatecv.com)
+# Built by Justin John D
+# Local-First ATS Curriculum Vitae Tailoring Studio
+
+User-agent: *
+Allow: /
+
+# Explicit rules for AI Search Engines & Knowledge Indexers
+User-agent: GPTBot
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+# Documentation for AI Crawlers:
+# Detailed architecture, capabilities, and system specifications are documented at /llms.txt
+
+# Privacy Notice:
+# Candidate resumes, job descriptions, and user credentials reside exclusively
+# in client-side browser storage (IndexedDB) or local Ollama instances.
+# No user PII or candidate data is stored on external web servers.
+
+Sitemap: /sitemap.xml

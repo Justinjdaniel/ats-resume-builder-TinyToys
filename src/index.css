@@ -1,0 +1,118 @@
+@import "tailwindcss";
+
+@layer base {
+  body {
+    font-family:
+      "Plus Jakarta Sans",
+      system-ui,
+      -apple-system,
+      sans-serif;
+  }
+  .font-display {
+    font-family: "Playfair Display", Georgia, serif;
+  }
+}
+
+/* Print CSS & Paged Media Rules */
+@media print {
+  @page {
+    /* 
+      CRITICAL: Standard physical margins for ATS & print compliance.
+      This ensures that EVERY printed page (page 1 bottom, page 2 top & bottom, etc.) 
+      has an exact 15mm top/bottom and 16mm left/right printable margin, 
+      preventing printer clipping and edge truncation.
+    */
+    margin: 15mm 16mm;
+    size: auto;
+  }
+
+  body {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Hide UI chrome, navigation, buttons, and on-screen guidelines */
+  header,
+  nav,
+  aside,
+  footer,
+  #editor-pane,
+  #toolbar-header,
+  #app-navigation,
+  button,
+  .no-print,
+  #document-page-numbers-overlay {
+    display: none !important;
+  }
+
+  #preview-container {
+    width: 100% !important;
+    height: auto !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: visible !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    transform: none !important;
+  }
+
+  #document-paper-sheet {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-height: auto !important;
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    transform: none !important;
+    page-break-after: auto;
+  }
+
+  /* 
+    Remove extra nested container padding in print mode since 
+    @page already provides the 15mm page margin on every physical page.
+  */
+  #resume-modern-template,
+  #resume-professional-template,
+  #resume-creative-template,
+  #cover-letter-paper {
+    padding: 0 !important;
+  }
+
+  /* Avoid awkward page break cuts across items and section headers */
+  .break-inside-avoid,
+  article,
+  section,
+  .resume-section,
+  .experience-item,
+  .education-item,
+  .project-item,
+  li {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  .section-heading {
+    break-after: avoid !important;
+    page-break-after: avoid !important;
+  }
+
+  /* Safe margin page break triggers */
+  .page-break-shifted {
+    margin-top: 0 !important;
+    break-before: page !important;
+    page-break-before: always !important;
+  }
+
+  .page-break-guide {
+    display: none !important;
+  }
+}
