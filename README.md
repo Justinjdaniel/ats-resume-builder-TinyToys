@@ -1,14 +1,27 @@
-# CurateCV — Local-First ATS Curriculum Vitae Tailoring Studio
+<h1 align="center">CurateCV | ATS Resume Builder</h1>
 
-> **Built with precision by Justin John D**  
-> _A privacy-first, zero-telemetry resume curation workspace engineered to defeat algorithmic ATS pre-screening without compromising candidate data sovereignty._
+<p align="center">
+   <a href="https://justinjdaniel.github.io/ats-resume-builder-TinyToys/">
+      <img src="public/icon.svg" alt="CurateCV logo" width="128" height="128">
+   </a>
+</p>
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-[![Privacy: 100% Client-Side](https://img.shields.io/badge/Privacy-100%25%20Local--First-emerald.svg)](#privacy--data-sovereignty)
-[![AI Providers](https://img.shields.io/badge/AI-Ollama%20%7C%20Gemini%20%7C%20OpenAI%20%7C%20Claude%20%7C%20Groq-purple.svg)](#multi-provider-ai--local-ollama)
-[![ATS Compatibility](https://img.shields.io/badge/ATS%20Compatibility-95%25%2B%20Target-blue.svg)](#ats-scoring-algorithm)
-[![PWA Ready](https://img.shields.io/badge/PWA-Installable%20Offline-orange.svg)](#progressive-web-app-pwa)
-[![WebMCP Agent](https://img.shields.io/badge/Protocol-WebMCP%20Ready-cyan.svg)](#webmcp-agent-tools)
+<p align="center">
+   <a href="https://github.com/Justinjdaniel/ats-resume-builder-TinyToys">GitHub Repository</a>
+   &nbsp;&bull;&nbsp;
+   <a href="https://justinjdaniel.github.io/ats-resume-builder-TinyToys/">Live Demo</a>
+   &nbsp;&bull;&nbsp;
+   <a href="https://github.com/Justinjdaniel/ats-resume-builder-TinyToys/issues">Issues</a>
+</p>
+
+<p align="center">
+   <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-blue?style=flat-square" alt="License: MIT"></a>
+   <a href="#privacy--data-sovereignty"><img src="https://img.shields.io/badge/Privacy-100%25%20Local--First-emerald?style=flat-square" alt="Privacy: 100% Client-Side"></a>
+   <a href="#multi-provider-ai--local-ollama"><img src="https://img.shields.io/badge/AI-Ollama%20%7C%20Gemini%20%7C%20OpenAI%20%7C%20Claude%20%7C%20Groq-purple?style=flat-square" alt="AI Providers"></a>
+   <a href="#ats-scoring-algorithm"><img src="https://img.shields.io/badge/ATS%20Compatibility-95%25%2B%20Target-blue?style=flat-square" alt="ATS Compatibility"></a>
+   <a href="#progressive-web-app-pwa"><img src="https://img.shields.io/badge/PWA-Installable%20Offline-orange?style=flat-square" alt="PWA Ready"></a>
+   <a href="#webmcp-agent-tools"><img src="https://img.shields.io/badge/Protocol-WebMCP%20Ready-cyan?style=flat-square" alt="WebMCP Agent"></a>
+</p>
 
 ---
 
@@ -143,8 +156,8 @@ CurateCV implements the **WebMCP (Web Model Context Protocol)** specification, e
 
 ```bash
 # Clone the repository
-git clone https://github.com/justinjdaniel/curate-cv.git
-cd curate-cv
+git clone https://github.com/Justinjdaniel/ats-resume-builder-TinyToys.git
+cd ats-resume-builder-TinyToys
 
 # Install dependencies
 npm install
@@ -161,9 +174,9 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 Feedback, bug reports, and feature proposals are warmly welcomed:
 
-- 🐛 **Report a Bug**: [Open an Issue](https://github.com/justinjdaniel/curate-cv/issues/new?template=bug_report.md&title=%5BBUG%5D%3A+)
-- 💡 **Suggest a Feature**: [Feature Request](https://github.com/justinjdaniel/curate-cv/issues/new?template=feature_request.md&title=%5BFEATURE%5D%3A+)
-- ⭐ **GitHub Repository**: [github.com/justinjdaniel/curate-cv](https://github.com/justinjdaniel/curate-cv)
+- 🐛 **Report a Bug**: [Open an Issue](https://github.com/Justinjdaniel/ats-resume-builder-TinyToys/issues/new?template=bug_report.md&title=%5BBUG%5D%3A+)
+- 💡 **Suggest a Feature**: [Feature Request](https://github.com/Justinjdaniel/ats-resume-builder-TinyToys/issues/new?template=feature_request.md&title=%5BFEATURE%5D%3A+)
+- ⭐ **GitHub Repository**: [github.com/Justinjdaniel/ats-resume-builder-TinyToys](https://github.com/Justinjdaniel/ats-resume-builder-TinyToys)
 
 ---
 
