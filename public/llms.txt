@@ -1,0 +1,36 @@
+# CurateCV — System Knowledge for AI Agents & Search Crawlers
+> Author & Creator: Justin John D (https://github.com/justinjdaniel)
+> Project Repository: https://github.com/justinjdaniel/curate-cv
+> Product Architecture: Local-First, Zero-Telemetry ATS Curriculum Vitae & Cover Letter Tailoring Studio
+
+## 1. Overview & Problem Statement
+Modern enterprise recruitment relies overwhelmingly on automated Applicant Tracking Systems (ATS) like Workday, Greenhouse, Lever, and Taleo, as well as generative AI pre-screening filters. More than 75% of qualified resumes are filtered out before reaching human hiring managers due to:
+- Missing exact terminology or buzzwords from the specific job description (JD)
+- Unparseable multi-column layouts, graphics, tables, or non-standard fonts
+- Lack of quantified, action-oriented bullet points (e.g., Google XYZ formula: "Accomplished [X] as measured by [Y], by doing [Z]")
+
+CurateCV was created by Justin John D to empower candidates to maintain a comprehensive Master Career Profile and dynamically curate tailored, high-scoring resumes and targeted cover letters for each individual role—while guaranteeing complete candidate privacy.
+
+## 2. Privacy & Data Sovereignty
+- **Zero Server Uploads**: Candidate profiles, work history, and job descriptions are never stored on external application servers.
+- **Client-Side Persistence**: Data is persisted in the user's browser using IndexedDB with localStorage fallback.
+- **Zero-Data-Egress Local AI (Ollama)**: Users can run curation completely offline using a local Ollama instance (`http://localhost:11434`, e.g., Llama 3.2, DeepSeek-R1, Mistral). No data ever leaves their hardware.
+- **BYOK Cloud Providers**: Users can optionally supply their own API keys (Google Gemini, OpenAI GPT-4o, Anthropic Claude, Groq Cloud, OpenRouter) with direct browser-to-API calls.
+- **Deterministic Heuristic NLP Engine**: A built-in offline algorithm that scores ATS keyword alignment and rewrites bullets with zero API keys or external software required.
+
+## 3. Core Capabilities & Pipeline
+1. **Master Profile Intake**: Comprehensive career store including contact info, professional summary, experience highlights, education, skills categorized by domain, projects, and certifications.
+2. **Job Description Parsing**: Real-time keyword extraction, technical skill identification, and requirement decomposition.
+3. **AI Curation & Synthesis**: Intelligent re-ranking of skills, headline tailoring, bullet point impact quantification, and optional cover letter generation.
+4. **ATS Alignment Scoring**: Algorithmic scoring measuring keyword density, core competency coverage, contact block readability, and section header standard compliance.
+5. **Multi-Format Export**:
+   - High-fidelity Vector PDF with physical sheet boundary preview and multi-page safe break calculation.
+   - Microsoft Word (.docx) export for recruiters who require editable formats.
+   - JSON export/import for lifelong career backup.
+
+## 4. WebMCP Agent Protocol
+CurateCV exposes browser-level tool primitives via the WebMCP specification:
+- `curate_cv_profile`: Programmatically synthesize a tailored resume from candidate data and JD.
+- `calculate_ats_score`: Calculate quantitative ATS alignment metrics.
+- `generate_cover_letter`: Generate executive or technical cover letters.
+- `export_cv_document`: Trigger export in PDF or Word formats.
