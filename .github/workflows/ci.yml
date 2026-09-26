@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: ["**"]
+    branches: ['**']
   pull_request:
 
 concurrency:
@@ -41,5 +41,15 @@ jobs:
       - name: Type-check
         run: pnpm lint
 
+      - name: Test
+        run: pnpm test
+
       - name: Build
+        env:
+          VITE_BASE_PATH: /${{ github.event.repository.name }}/
         run: pnpm build
+
+      - name: Verify Pages artifact
+        env:
+          VITE_BASE_PATH: /${{ github.event.repository.name }}/
+        run: pnpm verify:pages

@@ -1,10 +1,9 @@
 import {
+  EducationItem,
   MasterProfile,
   PersonalInfo,
-  WorkExperience,
-  EducationItem,
-  SkillCategory,
   ProjectItem,
+  WorkExperience,
 } from "../types";
 
 /**
@@ -471,17 +470,27 @@ export function mergeProfileData(
 }
 
 /**
- * Parses multiple files (PDF, DOCX, MD, TXT, JSON) and synthesizes a unified Master Data Profile
+ * Parses multiple text files (MD, TXT, JSON) and synthesizes a unified Master Data Profile
  */
 export async function parseMultipleFilesToMasterData(
   files: File[],
   currentProfile: MasterProfile,
 ): Promise<{
   profile: MasterProfile;
-  fileDetails: { name: string; size: number; textLength: number }[];
+  fileDetails: {
+    name: string;
+    size: number;
+    textLength: number;
+    error?: string;
+  }[];
 }> {
   let accumulatedProfile = { ...currentProfile };
-  const fileDetails: { name: string; size: number; textLength: number }[] = [];
+  const fileDetails: {
+    name: string;
+    size: number;
+    textLength: number;
+    error?: string;
+  }[] = [];
 
   for (const file of files) {
     try {
@@ -498,6 +507,12 @@ export async function parseMultipleFilesToMasterData(
       }
     } catch (err) {
       console.warn(`Error extracting text from ${file.name}:`, err);
+      fileDetails.push({
+        name: file.name,
+        size: file.size,
+        textLength: 0,
+        error: err instanceof Error ? err.message : "Failed to read file",
+      });
     }
   }
 

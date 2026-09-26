@@ -1,28 +1,28 @@
-import React, { useState, useRef } from "react";
-import { MasterProfile, ProjectItem, CertificationItem } from "../../types";
+import {
+  ArrowRight,
+  Award,
+  Briefcase,
+  CheckCircle2,
+  Code,
+  FileText,
+  FolderGit2,
+  GraduationCap,
+  Layers,
+  Plus,
+  RotateCcw,
+  ShieldCheck,
+  Sparkles,
+  Trash2,
+  UploadCloud,
+  User,
+} from "lucide-react";
+import React, { useRef, useState } from "react";
 import {
   parseMultipleFilesToMasterData,
   parseResumeTextToProfile,
 } from "../../lib/fileParser";
 import { DEFAULT_PROFILE } from "../../lib/storage";
-import {
-  UploadCloud,
-  FileText,
-  ShieldCheck,
-  CheckCircle2,
-  Trash2,
-  Plus,
-  ArrowRight,
-  Sparkles,
-  User,
-  Briefcase,
-  Code,
-  GraduationCap,
-  Layers,
-  RotateCcw,
-  FolderGit2,
-  Award,
-} from "lucide-react";
+import { CertificationItem, MasterProfile, ProjectItem } from "../../types";
 
 interface Props {
   masterProfile: MasterProfile;
@@ -62,9 +62,18 @@ export const Step1CandidateInfo: React.FC<Props> = ({
         fileArray,
         masterProfile,
       );
-      onUpdateMasterProfile(profile);
+      const successfulCount = fileDetails.filter((file) => !file.error).length;
+      const failedFiles = fileDetails.filter((file) => file.error);
+      if (successfulCount > 0) onUpdateMasterProfile(profile);
+      const updateMessage =
+        successfulCount > 0
+          ? ` Master profile updated with ${profile.experiences.length} experiences and ${profile.skillCategories.flatMap((c) => c.skills).length} skills.`
+          : " No supported files were analyzed.";
+      const failureMessage = failedFiles.length
+        ? ` Failed: ${failedFiles.map((file) => `${file.name} (${file.error})`).join("; ")}`
+        : "";
       setStatusMessage(
-        `Successfully analyzed ${fileDetails.length} file(s). Master profile updated with ${profile.experiences.length} experiences and ${profile.skillCategories.flatMap((c) => c.skills).length} skills!`,
+        `${successfulCount} file(s) analyzed; ${failedFiles.length} failed.${updateMessage}${failureMessage}`,
       );
     } catch (err: any) {
       setStatusMessage(
@@ -191,7 +200,7 @@ export const Step1CandidateInfo: React.FC<Props> = ({
             </div>
             <p className="text-xs text-stone-500 mt-1">
               Add your experience and background by uploading multiple files
-              (PDF, MD, DOCX, TXT) or pasting raw text. AI will analyze and
+              (MD, TXT, JSON) or pasting raw text. AI will analyze and
               synthesize your comprehensive Master Data.
             </p>
           </div>
@@ -263,9 +272,9 @@ export const Step1CandidateInfo: React.FC<Props> = ({
                 <span className="font-semibold text-stone-900">
                   Multi-File Client-Side Ingestion:{" "}
                 </span>
-                You can select or drag multiple files at once (e.g. your older
-                resume PDF + LinkedIn export + project docs). All parsing runs
-                100% locally in your browser sandbox.
+                You can select or drag multiple files at once (e.g. text or
+                Markdown resumes, profile exports, and project notes). Parsing
+                runs 100% locally in your browser sandbox.
               </div>
             </div>
 
@@ -303,7 +312,7 @@ export const Step1CandidateInfo: React.FC<Props> = ({
                 type="file"
                 multiple
                 disabled={isProcessing}
-                accept=".pdf,.docx,.doc,.md,.txt,.json"
+                accept=".md,.txt,.json"
                 className="hidden"
                 onChange={(e) => {
                   if (e.target.files) {
@@ -317,7 +326,7 @@ export const Step1CandidateInfo: React.FC<Props> = ({
                 Click or Drag & Drop Multiple Files Here
               </div>
               <div className="text-xs text-stone-500 mt-1">
-                Supports multiple PDF, MD, DOCX, TXT, or JSON files.
+                Supports multiple Markdown, TXT, or JSON files.
               </div>
             </div>
 

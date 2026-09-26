@@ -1,18 +1,18 @@
-import React, { useState, useRef } from "react";
-import { MasterProfile } from "../types";
+import {
+  AlertTriangle,
+  CheckCircle2,
+  FileCode,
+  RotateCcw,
+  ShieldCheck,
+  UploadCloud,
+} from "lucide-react";
+import React, { useRef, useState } from "react";
 import {
   extractTextFromFile,
   parseResumeTextToProfile,
 } from "../lib/fileParser";
 import { DEFAULT_PROFILE } from "../lib/storage";
-import {
-  UploadCloud,
-  FileCode,
-  CheckCircle2,
-  ShieldCheck,
-  RotateCcw,
-  AlertTriangle,
-} from "lucide-react";
+import { MasterProfile } from "../types";
 
 interface Props {
   currentProfile: MasterProfile;
@@ -49,7 +49,7 @@ export const FileIngestionDropzone: React.FC<Props> = ({
     } catch (err: any) {
       setErrorMsg(
         err.message ||
-          "Failed to read file. Please try another text, markdown, or Word file.",
+          "Failed to read file. Please try another text, Markdown, or JSON file.",
       );
     } finally {
       setIsProcessing(false);
@@ -142,7 +142,7 @@ export const FileIngestionDropzone: React.FC<Props> = ({
             ref={fileInputRef}
             type="file"
             disabled={isProcessing}
-            accept=".pdf,.docx,.doc,.md,.txt,.json"
+            accept=".md,.txt,.json"
             onChange={handleFileInput}
             className="hidden"
           />
@@ -154,9 +154,7 @@ export const FileIngestionDropzone: React.FC<Props> = ({
           <p className="text-[11px] text-stone-500">
             Accepts Markdown (
             <span className="font-mono text-stone-700">.md</span>), Plain Text (
-            <span className="font-mono text-stone-700">.txt</span>), Word (
-            <span className="font-mono text-stone-700">.docx</span>), PDF, and
-            JSON
+            <span className="font-mono text-stone-700">.txt</span>), and JSON.
           </p>
 
           {isProcessing && (

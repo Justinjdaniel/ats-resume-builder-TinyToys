@@ -4,8 +4,14 @@ import path from "path";
 import { defineConfig } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
 
+const configuredBasePath = process.env.VITE_BASE_PATH || "/";
+const basePath = configuredBasePath.endsWith("/")
+  ? configuredBasePath
+  : `${configuredBasePath}/`;
+
 export default defineConfig(() => {
   return {
+    base: basePath,
     plugins: [
       react(),
       tailwindcss(),
@@ -19,7 +25,7 @@ export default defineConfig(() => {
           "pwa-512x512.png",
         ],
         manifest: {
-          id: "/",
+          id: basePath,
           name: "CurateCV - ATS Resume Studio",
           short_name: "CurateCV",
           description:
@@ -27,29 +33,29 @@ export default defineConfig(() => {
           theme_color: "#0f172a",
           background_color: "#f5f5f4",
           display: "standalone",
-          start_url: "/",
-          scope: "/",
+          start_url: basePath,
+          scope: basePath,
           icons: [
             {
-              src: "/pwa-192x192.png",
+              src: `${basePath}pwa-192x192.png`,
               sizes: "192x192",
               type: "image/png",
               purpose: "any",
             },
             {
-              src: "/pwa-512x512.png",
+              src: `${basePath}pwa-512x512.png`,
               sizes: "512x512",
               type: "image/png",
               purpose: "any",
             },
             {
-              src: "/pwa-maskable-512x512.png",
+              src: `${basePath}pwa-maskable-512x512.png`,
               sizes: "512x512",
               type: "image/png",
               purpose: "maskable",
             },
             {
-              src: "/icon.svg",
+              src: `${basePath}icon.svg`,
               sizes: "any",
               type: "image/svg+xml",
               purpose: "any",

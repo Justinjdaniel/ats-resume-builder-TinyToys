@@ -1,20 +1,17 @@
-import React, { useState, useRef } from "react";
-import { JobDescription } from "../../types";
+import {
+  AlertCircle,
+  ArrowLeft,
+  ArrowRight,
+  CheckCircle2,
+  FileText,
+  MailCheck,
+  Sparkles,
+  UploadCloud,
+} from "lucide-react";
+import React, { useRef, useState } from "react";
 import { extractKeywordsFromText } from "../../lib/aiAtsService";
 import { extractTextFromFile } from "../../lib/fileParser";
-import {
-  Briefcase,
-  UploadCloud,
-  FileText,
-  Sparkles,
-  ArrowRight,
-  ArrowLeft,
-  CheckCircle2,
-  AlertCircle,
-  Sliders,
-  MailCheck,
-  FileQuestion,
-} from "lucide-react";
+import { JobDescription } from "../../types";
 
 interface Props {
   jobDescription: JobDescription;
@@ -206,7 +203,7 @@ export const Step2JobDescription: React.FC<Props> = ({
             }`}
           >
             <UploadCloud className="w-4 h-4" />
-            <span>Upload JD File (PDF/DOCX/MD/TXT)</span>
+            <span>Upload JD File (MD/TXT)</span>
           </button>
           <button
             onClick={() => setActiveTab("presets")}
@@ -277,7 +274,7 @@ export const Step2JobDescription: React.FC<Props> = ({
               <input
                 ref={fileInputRef}
                 type="file"
-                accept=".pdf,.docx,.doc,.md,.txt"
+                accept=".md,.txt"
                 className="hidden"
                 onChange={(e) => {
                   if (e.target.files && e.target.files.length > 0) {
@@ -290,8 +287,7 @@ export const Step2JobDescription: React.FC<Props> = ({
                 Click to Upload Job Description Document
               </div>
               <div className="text-xs text-stone-500 mt-1">
-                Upload a job specification PDF, Word (.docx), Markdown, or text
-                file.
+                Upload a Markdown or plain text job specification.
               </div>
             </div>
 

@@ -43,10 +43,18 @@ jobs:
       - name: Type-check
         run: pnpm lint
 
+      - name: Test
+        run: pnpm test
+
       - name: Build for GitHub Pages
         env:
           VITE_BASE_PATH: /${{ github.event.repository.name }}/
         run: pnpm build
+
+      - name: Verify Pages artifact
+        env:
+          VITE_BASE_PATH: /${{ github.event.repository.name }}/
+        run: pnpm verify:pages
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v4
@@ -57,6 +65,9 @@ jobs:
     name: Deploy Pages artifact
     needs: build
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     permissions:
       pages: write
       id-token: write
