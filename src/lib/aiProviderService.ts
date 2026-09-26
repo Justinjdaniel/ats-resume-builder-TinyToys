@@ -512,7 +512,7 @@ export async function executeAiCompletion(
         "Content-Type": "application/json",
         "x-api-key": apiKey.trim(),
         "anthropic-version": "2023-06-01",
-        "dangerously-allow-browser": "true",
+        "anthropic-dangerous-direct-browser-access": "true",
       },
       body: JSON.stringify({
         model: targetModel,

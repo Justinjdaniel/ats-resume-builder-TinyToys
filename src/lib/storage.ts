@@ -288,24 +288,36 @@ export const LocalStorageService = {
         const stored = await db.get("profiles", "master-profile-default");
         if (stored) return stored;
       }
+    } catch (e) {
+      console.warn("IndexedDB read error:", e);
+    }
+
+    try {
       const local = localStorage.getItem("resume_master_profile");
       if (local) return JSON.parse(local);
     } catch (e) {
-      console.warn("Storage read error:", e);
+      console.warn("localStorage read error:", e);
     }
+
     return DEFAULT_PROFILE;
   },
 
   async saveProfile(profile: MasterProfile): Promise<void> {
+    const updated = { ...profile, updatedAt: new Date().toISOString() };
+
     try {
-      const updated = { ...profile, updatedAt: new Date().toISOString() };
       localStorage.setItem("resume_master_profile", JSON.stringify(updated));
+    } catch (e) {
+      console.warn("localStorage save error:", e);
+    }
+
+    try {
       const db = await getDb();
       if (db) {
         await db.put("profiles", updated);
       }
     } catch (e) {
-      console.warn("Storage save error:", e);
+      console.warn("IndexedDB save error:", e);
     }
   },
 
@@ -316,23 +328,34 @@ export const LocalStorageService = {
         const stored = await db.get("job_descriptions", "jd-sample");
         if (stored) return stored;
       }
+    } catch (e) {
+      console.warn("IndexedDB read error:", e);
+    }
+
+    try {
       const local = localStorage.getItem("resume_job_description");
       if (local) return JSON.parse(local);
     } catch (e) {
-      console.warn("Storage read error:", e);
+      console.warn("localStorage read error:", e);
     }
+
     return DEFAULT_JOB_DESCRIPTION;
   },
 
   async saveJobDescription(jd: JobDescription): Promise<void> {
     try {
       localStorage.setItem("resume_job_description", JSON.stringify(jd));
+    } catch (e) {
+      console.warn("localStorage save error:", e);
+    }
+
+    try {
       const db = await getDb();
       if (db) {
         await db.put("job_descriptions", jd);
       }
     } catch (e) {
-      console.warn("Storage save error:", e);
+      console.warn("IndexedDB save error:", e);
     }
   },
 
@@ -343,24 +366,36 @@ export const LocalStorageService = {
         const stored = await db.get("cover_letters", "cl-default");
         if (stored) return stored;
       }
+    } catch (e) {
+      console.warn("IndexedDB read error:", e);
+    }
+
+    try {
       const local = localStorage.getItem("resume_cover_letter");
       if (local) return JSON.parse(local);
     } catch (e) {
-      console.warn("Storage read error:", e);
+      console.warn("localStorage read error:", e);
     }
+
     return DEFAULT_COVER_LETTER;
   },
 
   async saveCoverLetter(cl: CoverLetter): Promise<void> {
+    const updated = { ...cl, updatedAt: new Date().toISOString() };
+
     try {
-      const updated = { ...cl, updatedAt: new Date().toISOString() };
       localStorage.setItem("resume_cover_letter", JSON.stringify(updated));
+    } catch (e) {
+      console.warn("localStorage save error:", e);
+    }
+
+    try {
       const db = await getDb();
       if (db) {
         await db.put("cover_letters", updated);
       }
     } catch (e) {
-      console.warn("Storage save error:", e);
+      console.warn("IndexedDB save error:", e);
     }
   },
 
@@ -371,23 +406,34 @@ export const LocalStorageService = {
         const stored = await db.get("settings", "app_settings");
         if (stored) return stored;
       }
+    } catch (e) {
+      console.warn("IndexedDB read error:", e);
+    }
+
+    try {
       const local = localStorage.getItem("resume_app_settings");
       if (local) return JSON.parse(local);
     } catch (e) {
-      console.warn("Storage read error:", e);
+      console.warn("localStorage read error:", e);
     }
+
     return DEFAULT_SETTINGS;
   },
 
   async saveSettings(settings: AppSettings): Promise<void> {
     try {
       localStorage.setItem("resume_app_settings", JSON.stringify(settings));
+    } catch (e) {
+      console.warn("localStorage save error:", e);
+    }
+
+    try {
       const db = await getDb();
       if (db) {
         await db.put("settings", settings, "app_settings");
       }
     } catch (e) {
-      console.warn("Storage save error:", e);
+      console.warn("IndexedDB save error:", e);
     }
   },
 };

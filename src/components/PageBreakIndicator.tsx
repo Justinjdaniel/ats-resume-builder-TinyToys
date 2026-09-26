@@ -62,6 +62,8 @@ export const PageBreakIndicator: React.FC<PageBreakIndicatorProps> = ({
     const el = paperRef.current;
     if (!el) return;
 
+    let rafId: number | null = null;
+
     const measure = () => {
       // Find the actual document template container, ignoring overlays
       const contentEl = el.querySelector(
@@ -70,23 +72,40 @@ export const PageBreakIndicator: React.FC<PageBreakIndicatorProps> = ({
 
       if (contentEl) {
         const height = contentEl.scrollHeight || contentEl.offsetHeight;
-        setContentHeight(height);
+        setContentHeight((prev) => (prev === height ? prev : height));
       } else {
-        setContentHeight(el.clientHeight);
+        const fallbackHeight = el.clientHeight;
+        setContentHeight((prev) =>
+          prev === fallbackHeight ? prev : fallbackHeight,
+        );
       }
     };
 
-    measure();
+    const scheduleMeasure = () => {
+      if (rafId !== null) {
+        cancelAnimationFrame(rafId);
+      }
+      rafId = requestAnimationFrame(() => {
+        measure();
+      });
+    };
+
+    scheduleMeasure();
 
     const targetEl =
       (el.querySelector("#document-content-root") as HTMLElement | null) || el;
-    const resizeObserver = new ResizeObserver(measure);
+    const resizeObserver = new ResizeObserver(() => {
+      scheduleMeasure();
+    });
     resizeObserver.observe(targetEl);
-    window.addEventListener("resize", measure);
+    window.addEventListener("resize", scheduleMeasure);
 
     return () => {
+      if (rafId !== null) {
+        cancelAnimationFrame(rafId);
+      }
       resizeObserver.disconnect();
-      window.removeEventListener("resize", measure);
+      window.removeEventListener("resize", scheduleMeasure);
     };
   }, [paperRef, paperSize, fontSize, pageMargin, singlePageHeight]);
 

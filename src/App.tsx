@@ -107,11 +107,10 @@ export default function App() {
   // Sync to WebMCP tools whenever master profile, curated profile, JD, or API key changes
   useEffect(() => {
     const activeProfile = curatedProfile || masterProfile;
-    webMcpService.registerAllTools(
+    const cleanup = webMcpService.registerAllTools(
       () => activeProfile,
       (newP) => {
         setCuratedProfile(newP);
-        LocalStorageService.saveProfile(newP);
       },
       () => jobDescription,
       (newJd) => {
@@ -124,6 +123,10 @@ export default function App() {
         LocalStorageService.saveCoverLetter(newCl);
       },
     );
+
+    return () => {
+      cleanup?.();
+    };
   }, [
     masterProfile,
     curatedProfile,
@@ -144,7 +147,6 @@ export default function App() {
 
   const handleUpdateCuratedProfile = (p: MasterProfile) => {
     setCuratedProfile(p);
-    LocalStorageService.saveProfile(p);
   };
 
   const handleUpdateJd = (jd: JobDescription) => {

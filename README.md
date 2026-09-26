@@ -1,27 +1,14 @@
-<h1 align="center">CurateCV | ATS Resume Builder</h1>
+# CurateCV — Local-First ATS Curriculum Vitae Tailoring Studio
 
-<p align="center">
-   <a href="https://justinjdaniel.github.io/ats-resume-builder-TinyToys/">
-      <img src="public/icon.svg" alt="CurateCV logo" width="128" height="128">
-   </a>
-</p>
+> **Built with precision by Justin John D**  
+> _A privacy-first, zero-telemetry resume curation workspace engineered to defeat algorithmic ATS pre-screening without compromising candidate data sovereignty._
 
-<p align="center">
-   <a href="https://github.com/Justinjdaniel/ats-resume-builder-TinyToys">GitHub Repository</a>
-   &nbsp;&bull;&nbsp;
-   <a href="https://justinjdaniel.github.io/ats-resume-builder-TinyToys/">Live Demo</a>
-   &nbsp;&bull;&nbsp;
-   <a href="https://github.com/Justinjdaniel/ats-resume-builder-TinyToys/issues">Issues</a>
-</p>
-
-<p align="center">
-   <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-blue?style=flat-square" alt="License: MIT"></a>
-   <a href="#privacy--data-sovereignty"><img src="https://img.shields.io/badge/Privacy-100%25%20Local--First-emerald?style=flat-square" alt="Privacy: 100% Client-Side"></a>
-   <a href="#multi-provider-ai--local-ollama"><img src="https://img.shields.io/badge/AI-Ollama%20%7C%20Gemini%20%7C%20OpenAI%20%7C%20Claude%20%7C%20Groq-purple?style=flat-square" alt="AI Providers"></a>
-   <a href="#ats-scoring-algorithm"><img src="https://img.shields.io/badge/ATS%20Compatibility-95%25%2B%20Target-blue?style=flat-square" alt="ATS Compatibility"></a>
-   <a href="#progressive-web-app-pwa"><img src="https://img.shields.io/badge/PWA-Installable%20Offline-orange?style=flat-square" alt="PWA Ready"></a>
-   <a href="#webmcp-agent-tools"><img src="https://img.shields.io/badge/Protocol-WebMCP%20Ready-cyan?style=flat-square" alt="WebMCP Agent"></a>
-</p>
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![React: 19](https://img.shields.io/badge/React-19-61dafb.svg?logo=react&logoColor=black)](https://react.dev/)
+[![Privacy: 100% Client-Side](https://img.shields.io/badge/Privacy-100%25%20Local--First-emerald.svg)](#1-privacy--data-sovereignty)
+[![AI Providers](https://img.shields.io/badge/AI-Ollama%20%7C%20Gemini%20%7C%20OpenAI%20%7C%20Claude%20%7C%20Groq-purple.svg)](#2-multi-provider-ai--local-ollama)
+[![WebMCP Agent](https://img.shields.io/badge/Protocol-WebMCP%20Ready-cyan.svg)](#webmcp-agent-tools)
+[![Local Ollama](https://img.shields.io/badge/Local%20AI-Ollama%20Ready-black.svg)](#local-ai-with-ollama-setup-guide)
 
 ---
 
@@ -102,18 +89,18 @@ For 100% offline, zero-data-egress resume curation:
    ```
 
 3. **Start Ollama with CORS Enabled**:
-   Because CurateCV runs in your web browser, enable cross-origin requests by starting Ollama with `OLLAMA_ORIGINS`:
+   Because CurateCV runs in your web browser, configure allowed origins using `OLLAMA_ORIGINS`. For best security, specify the explicit origin URL of your application:
 
    ```bash
-   # Linux / macOS
-   OLLAMA_ORIGINS="*" ollama serve
+   # Recommended: Explicit origin allowlist (Linux / macOS)
+   OLLAMA_ORIGINS="http://localhost:3000,http://127.0.0.1:3000,https://curatecv.com" ollama serve
 
    # Windows (Command Prompt)
-   set OLLAMA_ORIGINS=*
+   set OLLAMA_ORIGINS=http://localhost:3000,http://127.0.0.1:3000,https://curatecv.com
    ollama serve
 
    # Windows (PowerShell)
-   $env:OLLAMA_ORIGINS="*"
+   $env:OLLAMA_ORIGINS="http://localhost:3000,http://127.0.0.1:3000,https://curatecv.com"
    ollama serve
    ```
 
@@ -128,20 +115,21 @@ For 100% offline, zero-data-egress resume curation:
 
 ## WebMCP Agent Tools
 
-CurateCV implements the **WebMCP (Web Model Context Protocol)** specification, enabling browser-based AI coding agents and autonomous assistants to interact with the curation engine:
+CurateCV implements the **WebMCP (Web Model Context Protocol)** specification (`document.modelContext.registerTool`), enabling browser-based AI coding agents and autonomous assistants to interact directly with the curation engine:
 
-| Tool Name               | Description                                                                       |
-| ----------------------- | --------------------------------------------------------------------------------- |
-| `curate_cv_profile`     | Programmatically curates a master profile against a target job description.       |
-| `calculate_ats_score`   | Computes quantitative ATS keyword match percentage and identifies missing skills. |
-| `generate_cover_letter` | Synthesizes a targeted cover letter for the hiring committee.                     |
-| `export_cv_document`    | Triggers document export in Vector PDF, Word (.docx), or JSON.                    |
+| Tool Name                | Description                                                                                | Parameters / Payload Schema                                                                       |
+| ------------------------ | ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------- |
+| `populateJobDescription` | Ingests target job title, company, and JD text, calculating initial ATS keyword alignment. | `{ jobTitle: string, company: string, rawText: string }`                                          |
+| `triggerAtsOptimization` | Performs lexical and semantic ATS matching against current target JD.                      | `{ focusArea?: 'all' \| 'skills' \| 'experience' }`                                               |
+| `generateCoverLetter`    | Synthesizes a targeted cover letter matching candidate background with JD.                 | `{ tone?: 'executive' \| 'technical' \| 'modern' }`                                               |
+| `exportResume`           | Triggers client-side export in DOCX, Markdown, or Plain Text format.                       | `{ format: 'docx' \| 'markdown' \| 'text', template?: 'modern' \| 'professional' \| 'creative' }` |
+| `getResumeSummary`       | Retrieves candidate profile summary, career duration, and skill categories.                | `{}`                                                                                              |
 
 ---
 
 ## Tech Stack & Architecture
 
-- **Frontend**: React 18, TypeScript, Vite
+- **Frontend**: React 19, TypeScript 5.8, Vite 6
 - **Styling**: Tailwind CSS
 - **Animations**: `motion/react`
 - **Icons**: `lucide-react`
@@ -156,8 +144,8 @@ CurateCV implements the **WebMCP (Web Model Context Protocol)** specification, e
 
 ```bash
 # Clone the repository
-git clone https://github.com/Justinjdaniel/ats-resume-builder-TinyToys.git
-cd ats-resume-builder-TinyToys
+git clone https://github.com/justinjdaniel/curate-cv.git
+cd curate-cv
 
 # Install dependencies
 npm install
@@ -174,9 +162,9 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 Feedback, bug reports, and feature proposals are warmly welcomed:
 
-- 🐛 **Report a Bug**: [Open an Issue](https://github.com/Justinjdaniel/ats-resume-builder-TinyToys/issues/new?template=bug_report.md&title=%5BBUG%5D%3A+)
-- 💡 **Suggest a Feature**: [Feature Request](https://github.com/Justinjdaniel/ats-resume-builder-TinyToys/issues/new?template=feature_request.md&title=%5BFEATURE%5D%3A+)
-- ⭐ **GitHub Repository**: [github.com/Justinjdaniel/ats-resume-builder-TinyToys](https://github.com/Justinjdaniel/ats-resume-builder-TinyToys)
+- 🐛 **Report a Bug**: [Open an Issue](https://github.com/justinjdaniel/curate-cv/issues/new?template=bug_report.md&title=%5BBUG%5D%3A+)
+- 💡 **Suggest a Feature**: [Feature Request](https://github.com/justinjdaniel/curate-cv/issues/new?template=feature_request.md&title=%5BFEATURE%5D%3A+)
+- ⭐ **GitHub Repository**: [github.com/justinjdaniel/curate-cv](https://github.com/justinjdaniel/curate-cv)
 
 ---
 

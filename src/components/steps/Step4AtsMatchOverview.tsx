@@ -37,9 +37,12 @@ export const Step4AtsMatchOverview: React.FC<Props> = ({
 
   const addMissingKeyword = (keyword: string) => {
     if (curatedProfile.skillCategories.length === 0) return;
-    const updatedCategories = [...curatedProfile.skillCategories];
-    if (!updatedCategories[0].skills.includes(keyword)) {
-      updatedCategories[0].skills = [...updatedCategories[0].skills, keyword];
+    const firstCat = curatedProfile.skillCategories[0];
+    if (!firstCat.skills.includes(keyword)) {
+      const updatedCategories = curatedProfile.skillCategories.map(
+        (cat, idx) =>
+          idx === 0 ? { ...cat, skills: [...cat.skills, keyword] } : cat,
+      );
       onUpdateCuratedProfile({
         ...curatedProfile,
         skillCategories: updatedCategories,

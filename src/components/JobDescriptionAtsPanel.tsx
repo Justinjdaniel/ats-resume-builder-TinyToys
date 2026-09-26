@@ -54,10 +54,11 @@ export const JobDescriptionAtsPanel: React.FC<Props> = ({
 
   const addMissingKeywordToSkills = (keyword: string) => {
     if (profile.skillCategories.length === 0) return;
-    const updatedCategories = [...profile.skillCategories];
-    const targetCat = updatedCategories[0];
+    const targetCat = profile.skillCategories[0];
     if (!targetCat.skills.includes(keyword)) {
-      targetCat.skills = [...targetCat.skills, keyword];
+      const updatedCategories = profile.skillCategories.map((cat, idx) =>
+        idx === 0 ? { ...cat, skills: [...cat.skills, keyword] } : cat,
+      );
       const updatedProfile = {
         ...profile,
         skillCategories: updatedCategories,

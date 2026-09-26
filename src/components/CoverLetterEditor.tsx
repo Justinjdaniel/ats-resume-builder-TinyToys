@@ -76,11 +76,15 @@ export const CoverLetterEditor: React.FC<Props> = ({
     });
   };
 
-  const copyToClipboard = () => {
+  const copyToClipboard = async () => {
     const fullText = `${coverLetter.salutation}\n\n${coverLetter.bodyParagraphs.join("\n\n")}\n\n${coverLetter.signOff}`;
-    navigator.clipboard.writeText(fullText);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    try {
+      await navigator.clipboard.writeText(fullText);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error("Failed to copy to clipboard:", err);
+    }
   };
 
   const downloadDocx = () => {

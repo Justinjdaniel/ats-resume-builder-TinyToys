@@ -100,6 +100,9 @@ export interface AtsMatchMetric {
     reasoning: string;
   }[];
   summaryFeedback: string;
+  jobTitleMatchScore: number;
+  skillsMatchScore: number;
+  impactScore: number;
 }
 
 // 9. Cover Letter

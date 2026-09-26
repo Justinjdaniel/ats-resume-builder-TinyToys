@@ -10,6 +10,7 @@ import {
   ArrowRight,
   ArrowLeft,
   CheckCircle2,
+  AlertCircle,
   Sliders,
   MailCheck,
   FileQuestion,
@@ -74,6 +75,9 @@ export const Step2JobDescription: React.FC<Props> = ({
   );
   const [isProcessingFile, setIsProcessingFile] = useState(false);
   const [fileMessage, setFileMessage] = useState<string | null>(null);
+  const [fileUploadStatus, setFileUploadStatus] = useState<
+    "idle" | "success" | "error"
+  >("idle");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleTextChange = (field: keyof JobDescription, val: string) => {
@@ -90,6 +94,7 @@ export const Step2JobDescription: React.FC<Props> = ({
   const handleFileUpload = async (file: File) => {
     setIsProcessingFile(true);
     setFileMessage(null);
+    setFileUploadStatus("idle");
     try {
       const text = await extractTextFromFile(file);
       if (!text || text.trim().length === 0) {
@@ -111,10 +116,12 @@ export const Step2JobDescription: React.FC<Props> = ({
         rawText: text,
         parsedKeywords: keywords,
       });
+      setFileUploadStatus("success");
       setFileMessage(
         `Extracted job description from ${file.name} with ${keywords.length} relevant keywords!`,
       );
     } catch (err: any) {
+      setFileUploadStatus("error");
       setFileMessage(`Error: ${err.message}`);
     } finally {
       setIsProcessingFile(false);
@@ -289,8 +296,18 @@ export const Step2JobDescription: React.FC<Props> = ({
             </div>
 
             {fileMessage && (
-              <div className="p-2.5 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600" />
+              <div
+                className={`p-2.5 rounded-lg border text-xs flex items-center gap-2 ${
+                  fileUploadStatus === "error"
+                    ? "bg-rose-50 border-rose-200 text-rose-800"
+                    : "bg-emerald-50 border-emerald-200 text-emerald-800"
+                }`}
+              >
+                {fileUploadStatus === "error" ? (
+                  <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
+                ) : (
+                  <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600" />
+                )}
                 <span>{fileMessage}</span>
               </div>
             )}

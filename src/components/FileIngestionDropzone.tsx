@@ -112,19 +112,36 @@ export const FileIngestionDropzone: React.FC<Props> = ({
         {/* Dropzone Area */}
         <div
           id="file-dropzone-box"
+          tabIndex={isProcessing ? -1 : 0}
+          role="button"
+          aria-label="Upload resume file"
+          aria-disabled={isProcessing}
+          onKeyDown={(e) => {
+            if (isProcessing) return;
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              fileInputRef.current?.click();
+            }
+          }}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
-          onClick={() => fileInputRef.current?.click()}
-          className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all ${
-            isDragging
-              ? "border-stone-900 bg-stone-100/70 scale-[0.99]"
-              : "border-stone-300 hover:border-stone-400 bg-stone-50/40 hover:bg-stone-50"
+          onClick={() => {
+            if (isProcessing) return;
+            fileInputRef.current?.click();
+          }}
+          className={`border-2 border-dashed rounded-xl p-8 text-center transition-all focus:outline-none focus:ring-2 focus:ring-stone-900 focus:ring-offset-2 ${
+            isProcessing
+              ? "opacity-60 cursor-not-allowed pointer-events-none border-stone-300 bg-stone-50/40"
+              : isDragging
+                ? "border-stone-900 bg-stone-100/70 scale-[0.99] cursor-pointer"
+                : "border-stone-300 hover:border-stone-400 bg-stone-50/40 hover:bg-stone-50 cursor-pointer"
           }`}
         >
           <input
             ref={fileInputRef}
             type="file"
+            disabled={isProcessing}
             accept=".pdf,.docx,.doc,.md,.txt,.json"
             onChange={handleFileInput}
             className="hidden"

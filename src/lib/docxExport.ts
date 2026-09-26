@@ -363,6 +363,62 @@ export async function exportResumeToDocx(
     });
   }
 
+  // Certifications
+  if (certifications && certifications.length > 0) {
+    children.push(
+      new Paragraph({
+        heading: HeadingLevel.HEADING_2,
+        spacing: { before: 240, after: 120 },
+        children: [
+          new TextRun({
+            text: "CERTIFICATIONS & CREDENTIALS",
+            bold: true,
+            size: 20,
+            font: "Arial",
+            color: "0c0a09",
+          }),
+        ],
+      }),
+    );
+
+    certifications.forEach((cert) => {
+      children.push(
+        new Paragraph({
+          bullet: { level: 0 },
+          spacing: { after: 60 },
+          children: [
+            new TextRun({
+              text: cert.name,
+              bold: true,
+              size: 19,
+              font: "Arial",
+              color: "1c1917",
+            }),
+            new TextRun({
+              text: ` — ${cert.issuer}`,
+              size: 19,
+              font: "Arial",
+              color: "44403c",
+            }),
+            new TextRun({
+              text: ` (${cert.date})`,
+              italics: true,
+              size: 18,
+              font: "Arial",
+              color: "78716c",
+            }),
+            new TextRun({
+              text: cert.credentialUrl ? ` | ${cert.credentialUrl}` : "",
+              size: 17,
+              font: "Arial",
+              color: "0284c7",
+            }),
+          ],
+        }),
+      );
+    });
+  }
+
   // Document Config
   const doc = new Document({
     sections: [

@@ -6,10 +6,11 @@ The AI-ATS Agent is responsible for Bring-Your-Own-Key (BYOK) key management, cl
 
 ## Core Architectural Rules
 
-1. **Zero External Data Exfiltration**:
-   - The user's Gemini API key is stored exclusively in client storage (`idb` / `localStorage`).
-   - If a BYOK key is provided, direct client requests are made to Gemini 3.8 Flash (`gemini-3.8-flash`).
-   - If no API key is provided, the application switches automatically to the **Built-in Heuristic ATS Engine** without breaking or requiring cloud authentication.
+1. **Privacy & Data Handling**:
+   - Local heuristic engine and local Ollama modes keep all candidate and job description data strictly local on the client device.
+   - When an optional cloud BYOK provider (such as Gemini, OpenAI, Anthropic, Groq, or OpenRouter) is configured and enabled, candidate profile data and job description text required for the requested operation are transmitted directly from the client's browser to the selected provider's API.
+   - All API keys and preferences are stored exclusively in client storage (`idb` / `localStorage`) and never sent to any intermediary server.
+   - If no API key is provided and local AI is not configured, the application switches automatically to the **Built-in Heuristic ATS Engine** without breaking or requiring cloud authentication.
 2. **ATS Scoring Algorithm**:
    - **Lexical Extraction**: Tokenize Job Description into high-frequency terms, skill taxonomy tokens (e.g. TypeScript, Cloud, Docker, System Design, CI/CD), and action phrases.
    - **Coverage Calculation**: Calculate intersection between profile skills/bullet points and JD keywords.

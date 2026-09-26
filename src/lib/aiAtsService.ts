@@ -154,50 +154,62 @@ export function computeLocalAtsMatch(
 
   // Collect all resume text
   const resumeTokens = new Set<string>();
+  const addToken = (raw?: string) => {
+    if (!raw) return;
+    const token = raw.trim().toLowerCase();
+    if (token.length >= 2) {
+      resumeTokens.add(token);
+    }
+  };
 
   // Profile summary
-  profile.personalInfo.summary
-    .split(/\W+/)
-    .forEach((w) => resumeTokens.add(w.toLowerCase()));
-  profile.personalInfo.headline
-    .split(/\W+/)
-    .forEach((w) => resumeTokens.add(w.toLowerCase()));
+  profile.personalInfo.summary.split(/\W+/).forEach(addToken);
+  profile.personalInfo.headline.split(/\W+/).forEach(addToken);
 
   // Skills
   profile.skillCategories.forEach((cat) => {
     cat.skills.forEach((s) => {
-      resumeTokens.add(s.toLowerCase());
-      s.split(/\W+/).forEach((part) => resumeTokens.add(part.toLowerCase()));
+      addToken(s);
+      s.split(/\W+/).forEach(addToken);
     });
   });
 
   // Experience highlights
   profile.experiences.forEach((exp) => {
-    exp.position.split(/\W+/).forEach((w) => resumeTokens.add(w.toLowerCase()));
+    exp.position.split(/\W+/).forEach(addToken);
     exp.highlights.forEach((h) => {
-      h.split(/\W+/).forEach((w) => resumeTokens.add(w.toLowerCase()));
+      h.split(/\W+/).forEach(addToken);
     });
   });
 
   // Project bullets
   profile.projects.forEach((proj) => {
-    proj.technologies.forEach((t) => resumeTokens.add(t.toLowerCase()));
+    proj.technologies.forEach((t) => {
+      addToken(t);
+      t.split(/\W+/).forEach(addToken);
+    });
     proj.bullets.forEach((b) => {
-      b.split(/\W+/).forEach((w) => resumeTokens.add(w.toLowerCase()));
+      b.split(/\W+/).forEach(addToken);
     });
   });
 
   const matchedKeywords: string[] = [];
   const missingKeywords: string[] = [];
+  const resumeTokenArray = Array.from(resumeTokens);
 
   jdKeywords.forEach((kw) => {
-    const kwLower = kw.toLowerCase();
-    if (
-      resumeTokens.has(kwLower) ||
-      Array.from(resumeTokens).some(
-        (rt) => rt.includes(kwLower) || kwLower.includes(rt),
-      )
-    ) {
+    const kwLower = kw.trim().toLowerCase();
+    if (!kwLower) return;
+
+    const isExactMatch = resumeTokens.has(kwLower);
+    const isSubstringMatch =
+      kwLower.length >= 3 &&
+      resumeTokenArray.some(
+        (rt) =>
+          rt.length >= 3 && (rt.includes(kwLower) || kwLower.includes(rt)),
+      );
+
+    if (isExactMatch || isSubstringMatch) {
       matchedKeywords.push(kw);
     } else {
       missingKeywords.push(kw);
@@ -226,7 +238,7 @@ export function computeLocalAtsMatch(
           100,
           Math.round((matchedKeywords.length / jdKeywords.length) * 100),
         )
-      : 75;
+      : 0;
 
   // Impact and metric score (measures numbers, % and metrics in bullet points)
   let totalBullets = 0;

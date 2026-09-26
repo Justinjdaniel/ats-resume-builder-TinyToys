@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react";
-import { MasterProfile } from "../../types";
+import { MasterProfile, ProjectItem, CertificationItem } from "../../types";
 import {
   parseMultipleFilesToMasterData,
   parseResumeTextToProfile,
@@ -20,6 +20,8 @@ import {
   GraduationCap,
   Layers,
   RotateCcw,
+  FolderGit2,
+  Award,
 } from "lucide-react";
 
 interface Props {
@@ -44,6 +46,7 @@ export const Step1CandidateInfo: React.FC<Props> = ({
 
   // Handle Multi-file selection
   const handleFilesAdded = async (files: FileList | File[]) => {
+    if (isProcessing) return;
     const fileArray = Array.from(files);
     if (fileArray.length === 0) return;
 
@@ -79,7 +82,7 @@ export const Step1CandidateInfo: React.FC<Props> = ({
 
   // Handle text parsing
   const handleParseRawText = () => {
-    if (!rawPastedText.trim()) return;
+    if (isProcessing || !rawPastedText.trim()) return;
     setIsProcessing(true);
     setStatusMessage("Parsing raw text into Master Profile...");
     try {
@@ -104,6 +107,73 @@ export const Step1CandidateInfo: React.FC<Props> = ({
   const totalSkills = masterProfile.skillCategories.flatMap(
     (c) => c.skills,
   ).length;
+
+  // Projects CRUD Handlers
+  const handleAddProject = () => {
+    const newProj: ProjectItem = {
+      id: `proj-${Date.now()}`,
+      title: "New Technical Project",
+      role: "Lead Architect / Contributor",
+      technologies: ["TypeScript", "React"],
+      summary: "Architected and built full-stack responsive web application.",
+      bullets: [
+        "Engineered scalable architecture with clean state management and optimized bundle size.",
+      ],
+    };
+    onUpdateMasterProfile({
+      ...masterProfile,
+      projects: [newProj, ...masterProfile.projects],
+    });
+  };
+
+  const handleUpdateProject = (id: string, updated: Partial<ProjectItem>) => {
+    onUpdateMasterProfile({
+      ...masterProfile,
+      projects: masterProfile.projects.map((p) =>
+        p.id === id ? { ...p, ...updated } : p,
+      ),
+    });
+  };
+
+  const handleDeleteProject = (id: string) => {
+    onUpdateMasterProfile({
+      ...masterProfile,
+      projects: masterProfile.projects.filter((p) => p.id !== id),
+    });
+  };
+
+  // Certifications CRUD Handlers
+  const handleAddCertification = () => {
+    const newCert: CertificationItem = {
+      id: `cert-${Date.now()}`,
+      name: "Professional Cloud Architect",
+      issuer: "Google Cloud / AWS",
+      date: new Date().getFullYear().toString(),
+    };
+    onUpdateMasterProfile({
+      ...masterProfile,
+      certifications: [newCert, ...masterProfile.certifications],
+    });
+  };
+
+  const handleUpdateCertification = (
+    id: string,
+    updated: Partial<CertificationItem>,
+  ) => {
+    onUpdateMasterProfile({
+      ...masterProfile,
+      certifications: masterProfile.certifications.map((c) =>
+        c.id === id ? { ...c, ...updated } : c,
+      ),
+    });
+  };
+
+  const handleDeleteCertification = (id: string) => {
+    onUpdateMasterProfile({
+      ...masterProfile,
+      certifications: masterProfile.certifications.filter((c) => c.id !== id),
+    });
+  };
 
   return (
     <div id="step-1-candidate-info" className="space-y-6">
@@ -200,24 +270,47 @@ export const Step1CandidateInfo: React.FC<Props> = ({
             </div>
 
             <div
+              tabIndex={isProcessing ? -1 : 0}
+              role="button"
+              aria-label="Upload multiple resume files"
+              aria-disabled={isProcessing}
+              onKeyDown={(e) => {
+                if (isProcessing) return;
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  fileInputRef.current?.click();
+                }
+              }}
               onDragOver={(e) => e.preventDefault()}
               onDrop={(e) => {
                 e.preventDefault();
+                if (isProcessing) return;
                 if (e.dataTransfer.files)
                   handleFilesAdded(e.dataTransfer.files);
               }}
-              onClick={() => fileInputRef.current?.click()}
-              className="border-2 border-dashed border-stone-300 hover:border-stone-500 rounded-xl p-8 text-center bg-stone-50/50 hover:bg-stone-50 cursor-pointer transition-all"
+              onClick={() => {
+                if (isProcessing) return;
+                fileInputRef.current?.click();
+              }}
+              className={`border-2 border-dashed rounded-xl p-8 text-center transition-all focus:outline-none focus:ring-2 focus:ring-stone-900 focus:ring-offset-2 ${
+                isProcessing
+                  ? "opacity-60 cursor-not-allowed pointer-events-none border-stone-300 bg-stone-50/40"
+                  : "border-stone-300 hover:border-stone-500 bg-stone-50/50 hover:bg-stone-50 cursor-pointer"
+              }`}
             >
               <input
                 ref={fileInputRef}
                 type="file"
                 multiple
+                disabled={isProcessing}
                 accept=".pdf,.docx,.doc,.md,.txt,.json"
                 className="hidden"
-                onChange={(e) =>
-                  e.target.files && handleFilesAdded(e.target.files)
-                }
+                onChange={(e) => {
+                  if (e.target.files) {
+                    handleFilesAdded(e.target.files);
+                  }
+                  e.target.value = "";
+                }}
               />
               <UploadCloud className="w-8 h-8 mx-auto text-stone-500 mb-2" />
               <div className="text-sm font-semibold text-stone-800">
@@ -430,6 +523,194 @@ export const Step1CandidateInfo: React.FC<Props> = ({
                     </span>
                   ))}
               </div>
+            </div>
+
+            {/* Projects CRUD Section */}
+            <div className="space-y-2 pt-2 border-t border-stone-200">
+              <div className="flex items-center justify-between text-xs font-semibold text-stone-800">
+                <span className="flex items-center gap-1.5">
+                  <FolderGit2 className="w-3.5 h-3.5 text-stone-600" />
+                  Key Projects ({masterProfile.projects.length})
+                </span>
+                <button
+                  type="button"
+                  onClick={handleAddProject}
+                  className="flex items-center gap-1 text-[11px] px-2 py-1 bg-stone-900 hover:bg-stone-800 text-white rounded font-medium transition-colors cursor-pointer"
+                >
+                  <Plus className="w-3 h-3" />
+                  <span>Add Project</span>
+                </button>
+              </div>
+
+              {masterProfile.projects.length === 0 ? (
+                <div className="p-3 bg-stone-50 rounded-lg border border-dashed border-stone-300 text-center text-xs text-stone-500">
+                  No projects added yet. Click &quot;Add Project&quot; to
+                  showcase your portfolio architectures.
+                </div>
+              ) : (
+                <div className="space-y-3 max-h-72 overflow-y-auto pr-1">
+                  {masterProfile.projects.map((proj) => (
+                    <div
+                      key={proj.id}
+                      className="p-3 bg-stone-50/70 rounded-lg border border-stone-200 text-xs space-y-2"
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <input
+                          type="text"
+                          value={proj.title}
+                          placeholder="Project Title"
+                          onChange={(e) =>
+                            handleUpdateProject(proj.id, {
+                              title: e.target.value,
+                            })
+                          }
+                          className="font-semibold text-stone-900 bg-white border border-stone-300 rounded px-2 py-1 text-xs flex-1"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteProject(proj.id)}
+                          className="text-stone-400 hover:text-rose-600 p-1 rounded hover:bg-rose-50 transition-colors"
+                          title="Delete Project"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <input
+                          type="text"
+                          value={proj.role || ""}
+                          placeholder="Your Role (e.g. Lead Engineer)"
+                          onChange={(e) =>
+                            handleUpdateProject(proj.id, {
+                              role: e.target.value,
+                            })
+                          }
+                          className="bg-white border border-stone-300 rounded px-2 py-1 text-xs"
+                        />
+                        <input
+                          type="text"
+                          value={proj.technologies.join(", ")}
+                          placeholder="Technologies (comma-separated)"
+                          onChange={(e) =>
+                            handleUpdateProject(proj.id, {
+                              technologies: e.target.value
+                                .split(",")
+                                .map((s) => s.trim())
+                                .filter(Boolean),
+                            })
+                          }
+                          className="bg-white border border-stone-300 rounded px-2 py-1 text-xs"
+                        />
+                      </div>
+
+                      <input
+                        type="text"
+                        value={proj.summary}
+                        placeholder="Short Summary / Impact"
+                        onChange={(e) =>
+                          handleUpdateProject(proj.id, {
+                            summary: e.target.value,
+                          })
+                        }
+                        className="w-full bg-white border border-stone-300 rounded px-2 py-1 text-xs"
+                      />
+
+                      <textarea
+                        rows={2}
+                        value={proj.bullets.join("\n")}
+                        placeholder="Key Accomplishment Bullets (one per line)"
+                        onChange={(e) =>
+                          handleUpdateProject(proj.id, {
+                            bullets: e.target.value
+                              .split("\n")
+                              .filter((b) => b.trim().length > 0),
+                          })
+                        }
+                        className="w-full bg-white border border-stone-300 rounded px-2 py-1 text-xs font-mono"
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Certifications CRUD Section */}
+            <div className="space-y-2 pt-2 border-t border-stone-200">
+              <div className="flex items-center justify-between text-xs font-semibold text-stone-800">
+                <span className="flex items-center gap-1.5">
+                  <Award className="w-3.5 h-3.5 text-stone-600" />
+                  Certifications &amp; Credentials (
+                  {masterProfile.certifications.length})
+                </span>
+                <button
+                  type="button"
+                  onClick={handleAddCertification}
+                  className="flex items-center gap-1 text-[11px] px-2 py-1 bg-stone-900 hover:bg-stone-800 text-white rounded font-medium transition-colors cursor-pointer"
+                >
+                  <Plus className="w-3 h-3" />
+                  <span>Add Certification</span>
+                </button>
+              </div>
+
+              {masterProfile.certifications.length === 0 ? (
+                <div className="p-3 bg-stone-50 rounded-lg border border-dashed border-stone-300 text-center text-xs text-stone-500">
+                  No certifications added yet. Click &quot;Add
+                  Certification&quot; to include professional licenses or
+                  credentials.
+                </div>
+              ) : (
+                <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
+                  {masterProfile.certifications.map((cert) => (
+                    <div
+                      key={cert.id}
+                      className="p-2.5 bg-stone-50/70 rounded-lg border border-stone-200 text-xs flex flex-wrap sm:flex-nowrap items-center gap-2"
+                    >
+                      <input
+                        type="text"
+                        value={cert.name}
+                        placeholder="Certification Name"
+                        onChange={(e) =>
+                          handleUpdateCertification(cert.id, {
+                            name: e.target.value,
+                          })
+                        }
+                        className="bg-white border border-stone-300 rounded px-2 py-1 text-xs font-semibold text-stone-900 flex-2 min-w-[140px]"
+                      />
+                      <input
+                        type="text"
+                        value={cert.issuer}
+                        placeholder="Issuing Authority"
+                        onChange={(e) =>
+                          handleUpdateCertification(cert.id, {
+                            issuer: e.target.value,
+                          })
+                        }
+                        className="bg-white border border-stone-300 rounded px-2 py-1 text-xs flex-1 min-w-[100px]"
+                      />
+                      <input
+                        type="text"
+                        value={cert.date}
+                        placeholder="Year / Date"
+                        onChange={(e) =>
+                          handleUpdateCertification(cert.id, {
+                            date: e.target.value,
+                          })
+                        }
+                        className="bg-white border border-stone-300 rounded px-2 py-1 text-xs w-24"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteCertification(cert.id)}
+                        className="text-stone-400 hover:text-rose-600 p-1 rounded hover:bg-rose-50 transition-colors ml-auto"
+                        title="Delete Certification"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         )}

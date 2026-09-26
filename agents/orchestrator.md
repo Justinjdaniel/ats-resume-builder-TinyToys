@@ -10,7 +10,7 @@ The Orchestrator Agent is responsible for project-level delegation, state consis
    - Maintain the authoritative backlog and status in `/agent-tasks.md`.
    - Update statuses (`[TODO]`, `[IN_PROGRESS]`, `[DONE]`, `[BLOCKED]`) as features advance.
 2. **Subsystem Cohesion**:
-   - Ensure the UI/UX Agent, AI-ATS Agent, Exporter Agent, and WebMCP Agent adhere to the strict privacy-first contract (no remote data leakage).
+   - Ensure the UI/UX Agent, AI-ATS Agent, Exporter Agent, and WebMCP Agent adhere to the data privacy contract (offline-only and zero data egress in local heuristic and Ollama modes; direct client-to-provider transmission without intermediary servers when cloud BYOK is configured).
    - Ensure changes in data models (`specs/DATA_MODELS.md`) propagate to storage schemas, UI forms, export packers, and AI prompts.
 3. **Quality & Zero-Regression Guardrail**:
    - Verify that builds pass (`pnpm run build` or `vite build`) without TypeScript errors or runtime warnings.

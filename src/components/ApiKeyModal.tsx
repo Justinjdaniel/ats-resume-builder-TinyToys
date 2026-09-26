@@ -250,18 +250,23 @@ export const ApiKeyModal: React.FC<Props> = ({
 
         {/* Scrollable Content */}
         <div className="p-5 overflow-y-auto space-y-4 text-xs">
-          {/* Privacy Guarantee Pill */}
-          <div className="p-3 bg-emerald-50/70 border border-emerald-200/80 rounded-xl flex items-start gap-2.5 text-emerald-950">
-            <Shield className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-            <div className="leading-relaxed">
-              <span className="font-bold block text-emerald-900 mb-0.5">
-                Zero-Telemetry Client-Side Guarantee
+          {/* Privacy & Storage Transparency Pill */}
+          <div className="p-3 bg-stone-100 border border-stone-200 rounded-xl flex items-start gap-2.5 text-stone-900">
+            <Shield className="w-4 h-4 text-stone-700 shrink-0 mt-0.5" />
+            <div className="leading-relaxed text-[11px] text-stone-700">
+              <span className="font-bold block text-stone-900 mb-0.5">
+                Privacy &amp; Local Storage Transparency
               </span>
-              All API keys are encrypted in your browser's private storage
-              (IndexedDB). For absolute privacy, select{" "}
-              <strong className="font-semibold text-emerald-800">Ollama</strong>{" "}
-              to run curation completely on your local machine with{" "}
-              <strong>zero external data egress</strong>.
+              API keys and configuration are stored locally in your browser
+              (unencrypted in client-side storage) and never sent to any
+              intermediary server. When using the{" "}
+              <strong className="text-stone-900">Deterministic Engine</strong>{" "}
+              or <strong className="text-stone-900">Ollama</strong>, all
+              candidate and job data stays 100% on your device with zero egress.
+              When an optional cloud BYOK provider (Gemini, OpenAI, Anthropic,
+              Groq, OpenRouter) is enabled, candidate and job data required for
+              the operation is transmitted directly to that chosen provider's
+              API.
             </div>
           </div>
 

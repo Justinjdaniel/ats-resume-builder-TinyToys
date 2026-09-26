@@ -182,16 +182,26 @@ export function useSafePageBreakMargins({
       container.querySelector<HTMLElement>("#document-content-root") ||
       container;
 
+    let rafId: number | null = null;
+
     const observer = new ResizeObserver(() => {
-      if (!isAligningRef.current) {
-        applySafeMargins();
+      if (rafId !== null) {
+        cancelAnimationFrame(rafId);
       }
+      rafId = requestAnimationFrame(() => {
+        if (!isAligningRef.current) {
+          applySafeMargins();
+        }
+      });
     });
 
     observer.observe(targetToObserve);
 
     return () => {
       clearTimeout(timeoutId);
+      if (rafId !== null) {
+        cancelAnimationFrame(rafId);
+      }
       observer.disconnect();
     };
   }, [applySafeMargins, ...dependencies]);

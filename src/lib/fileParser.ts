@@ -1,5 +1,6 @@
 import {
   MasterProfile,
+  PersonalInfo,
   WorkExperience,
   EducationItem,
   SkillCategory,
@@ -19,21 +20,36 @@ export function parseResumeTextToProfile(
     .filter(Boolean);
   if (lines.length === 0) return currentProfile;
 
+  // Clone currentProfile deeply to prevent mutating React state
   const newProfile: MasterProfile = {
     ...currentProfile,
+    personalInfo: { ...currentProfile.personalInfo },
+    experiences: currentProfile.experiences.map((e) => ({
+      ...e,
+      highlights: [...e.highlights],
+    })),
+    education: currentProfile.education.map((ed) => ({
+      ...ed,
+      highlights: ed.highlights ? [...ed.highlights] : [],
+    })),
+    skillCategories: currentProfile.skillCategories.map((c) => ({
+      ...c,
+      skills: [...c.skills],
+    })),
+    projects: currentProfile.projects.map((p) => ({
+      ...p,
+      technologies: [...p.technologies],
+      bullets: [...p.bullets],
+    })),
+    certifications: currentProfile.certifications.map((c) => ({ ...c })),
     updatedAt: new Date().toISOString(),
   };
 
   // Check if it's exported JSON
   try {
     const parsed = JSON.parse(rawText);
-    if (parsed && (parsed.personalInfo || parsed.experiences)) {
-      return {
-        ...currentProfile,
-        ...parsed,
-        id: currentProfile.id,
-        updatedAt: new Date().toISOString(),
-      };
+    if (parsed && typeof parsed === "object") {
+      return mergeProfileData(currentProfile, parsed);
     }
   } catch {
     // Continue with markdown / text parsing
@@ -42,7 +58,11 @@ export function parseResumeTextToProfile(
   // Attempt header extraction
   if (lines.length > 0) {
     const firstLine = lines[0].replace(/^#+\s*/, "").trim();
-    if (firstLine.length < 50 && !firstLine.includes(":")) {
+    if (
+      firstLine.length < 50 &&
+      !firstLine.includes(":") &&
+      !firstLine.includes("@")
+    ) {
       newProfile.personalInfo.fullName = firstLine;
     }
   }
@@ -172,35 +192,61 @@ export function parseResumeTextToProfile(
           highlights: [],
         });
       }
+    } else if (currentSection === "projects") {
+      if (
+        line.startsWith("•") ||
+        line.startsWith("-") ||
+        line.startsWith("*")
+      ) {
+        const bullet = line.replace(/^[•*-]\s*/, "").trim();
+        if (projectList.length > 0 && bullet.length > 5) {
+          projectList[projectList.length - 1].bullets.push(bullet);
+        }
+      } else if (line.length > 3 && !line.startsWith("#")) {
+        const parts = line.split(/[-|–,]/).map((p) => p.trim());
+        if (parts.length >= 1) {
+          projectList.push({
+            id: `parsed-proj-${projectList.length + 1}`,
+            title: parts[0],
+            role: parts[1] || "Contributor",
+            technologies: parts
+              .slice(2)
+              .flatMap((t) => t.split(/\s+/))
+              .filter(Boolean),
+            summary: parts[1] || parts[0],
+            bullets: [],
+          });
+        }
+      }
     }
   }
 
-  if (summaryLines.length > 0) {
-    newProfile.personalInfo.summary = summaryLines.slice(0, 3).join(" ");
-  }
+  const parsedIncoming: Partial<MasterProfile> = {
+    personalInfo: {
+      ...newProfile.personalInfo,
+      ...(summaryLines.length > 0
+        ? { summary: summaryLines.slice(0, 3).join(" ") }
+        : {}),
+    },
+    experiences,
+    education,
+    skillCategories:
+      skillsList.length > 0
+        ? [
+            {
+              id: "cat-imported",
+              categoryName: "Imported Skills & Technologies",
+              skills: Array.from(new Set(skillsList))
+                .filter((s) => s.length < 30)
+                .slice(0, 24),
+            },
+          ]
+        : [],
+    projects: projectList,
+    certifications: [],
+  };
 
-  if (experiences.length > 0) {
-    newProfile.experiences = experiences;
-  }
-
-  if (education.length > 0) {
-    newProfile.education = education;
-  }
-
-  if (skillsList.length > 0) {
-    const uniqueSkills = Array.from(new Set(skillsList)).filter(
-      (s) => s.length < 30,
-    );
-    newProfile.skillCategories = [
-      {
-        id: "cat-imported",
-        categoryName: "Imported Skills & Technologies",
-        skills: uniqueSkills.slice(0, 24),
-      },
-    ];
-  }
-
-  return newProfile;
+  return mergeProfileData(currentProfile, parsedIncoming);
 }
 
 /**
@@ -210,42 +256,28 @@ export async function extractTextFromFile(file: File): Promise<string> {
   const fileType = file.name.split(".").pop()?.toLowerCase();
 
   return new Promise((resolve, reject) => {
+    if (fileType === "pdf" || fileType === "docx" || fileType === "doc") {
+      reject(
+        new Error(
+          `Direct binary extraction for .${fileType} is not supported locally in browser sandbox. Please upload as plain text, Markdown (.md), or exported JSON, or paste the content directly.`,
+        ),
+      );
+      return;
+    }
+
     const reader = new FileReader();
 
     reader.onload = (e) => {
       const content = e.target?.result;
       if (typeof content === "string") {
         resolve(content);
-      } else if (content instanceof ArrayBuffer) {
-        // Try decoding as UTF-8
-        try {
-          const decoder = new TextDecoder("utf-8");
-          const decoded = decoder.decode(content);
-          // If word docx, strip binary xml tags to extract raw text
-          if (fileType === "docx") {
-            const textOnly = decoded
-              .replace(/<[^>]+>/g, " ")
-              .replace(/[^\x20-\x7E\n]/g, " ")
-              .replace(/\s+/g, " ");
-            resolve(textOnly);
-          } else {
-            resolve(decoded);
-          }
-        } catch {
-          resolve("");
-        }
       } else {
         resolve("");
       }
     };
 
     reader.onerror = () => reject(new Error("Failed to read file"));
-
-    if (fileType === "pdf" || fileType === "docx") {
-      reader.readAsArrayBuffer(file);
-    } else {
-      reader.readAsText(file);
-    }
+    reader.readAsText(file);
   });
 }
 
@@ -254,111 +286,186 @@ export async function extractTextFromFile(file: File): Promise<string> {
  */
 export function mergeProfileData(
   base: MasterProfile,
-  incoming: MasterProfile,
+  incoming: Partial<MasterProfile>,
 ): MasterProfile {
+  if (!incoming || typeof incoming !== "object") return base;
+
+  const incPersonal: Partial<PersonalInfo> = incoming.personalInfo || {};
+  const basePersonal: Partial<PersonalInfo> = base.personalInfo || {};
+
+  const incSummary =
+    typeof incPersonal.summary === "string" ? incPersonal.summary : "";
+  const baseSummary =
+    typeof basePersonal.summary === "string" ? basePersonal.summary : "";
+
   const merged: MasterProfile = {
     ...base,
     updatedAt: new Date().toISOString(),
     personalInfo: {
-      fullName: incoming.personalInfo.fullName || base.personalInfo.fullName,
-      headline: incoming.personalInfo.headline || base.personalInfo.headline,
-      email: incoming.personalInfo.email || base.personalInfo.email,
-      phone: incoming.personalInfo.phone || base.personalInfo.phone,
-      location: incoming.personalInfo.location || base.personalInfo.location,
-      website: incoming.personalInfo.website || base.personalInfo.website,
-      linkedin: incoming.personalInfo.linkedin || base.personalInfo.linkedin,
-      github: incoming.personalInfo.github || base.personalInfo.github,
+      fullName: incPersonal.fullName || basePersonal.fullName || "",
+      headline: incPersonal.headline || basePersonal.headline || "",
+      email: incPersonal.email || basePersonal.email || "",
+      phone: incPersonal.phone || basePersonal.phone || "",
+      location: incPersonal.location || basePersonal.location || "",
+      website: incPersonal.website || basePersonal.website,
+      linkedin: incPersonal.linkedin || basePersonal.linkedin,
+      github: incPersonal.github || basePersonal.github,
       summary:
-        incoming.personalInfo.summary.length > base.personalInfo.summary.length
-          ? incoming.personalInfo.summary
-          : base.personalInfo.summary,
+        incSummary.length > baseSummary.length ? incSummary : baseSummary,
     },
-    experiences: [...base.experiences],
-    education: [...base.education],
-    skillCategories: [...base.skillCategories],
-    projects: [...base.projects],
-    certifications: [...base.certifications],
+    experiences: base.experiences ? [...base.experiences] : [],
+    education: base.education ? [...base.education] : [],
+    skillCategories: base.skillCategories
+      ? base.skillCategories.map((c) => ({ ...c, skills: [...c.skills] }))
+      : [],
+    projects: base.projects ? [...base.projects] : [],
+    certifications: base.certifications ? [...base.certifications] : [],
   };
 
-  // Merge experiences by company/position
-  incoming.experiences.forEach((incExp) => {
-    const existingIdx = merged.experiences.findIndex(
-      (e) =>
-        e.company.toLowerCase() === incExp.company.toLowerCase() ||
-        (e.position.toLowerCase() === incExp.position.toLowerCase() &&
-          incExp.company.length > 2),
-    );
-    if (existingIdx >= 0) {
-      // Merge unique highlights
-      const existing = merged.experiences[existingIdx];
-      const allHighlights = Array.from(
-        new Set([...existing.highlights, ...incExp.highlights]),
+  // Merge experiences by matching BOTH company AND position
+  if (Array.isArray(incoming.experiences)) {
+    incoming.experiences.forEach((incExp) => {
+      if (!incExp || !incExp.company || !incExp.position) return;
+      const incCompany = incExp.company.trim().toLowerCase();
+      const incPosition = incExp.position.trim().toLowerCase();
+
+      const existingIdx = merged.experiences.findIndex(
+        (e) =>
+          e.company.trim().toLowerCase() === incCompany &&
+          e.position.trim().toLowerCase() === incPosition,
       );
-      merged.experiences[existingIdx] = {
-        ...existing,
-        position: incExp.position || existing.position,
-        startDate: existing.startDate || incExp.startDate,
-        endDate: existing.endDate || incExp.endDate,
-        highlights: allHighlights,
-      };
-    } else {
-      merged.experiences.push(incExp);
-    }
-  });
 
-  // Merge education by institution/degree
-  incoming.education.forEach((incEdu) => {
-    const existingIdx = merged.education.findIndex(
-      (e) => e.institution.toLowerCase() === incEdu.institution.toLowerCase(),
-    );
-    if (existingIdx < 0) {
-      merged.education.push(incEdu);
-    }
-  });
-
-  // Merge skills
-  const allExistingSkills = new Set(
-    merged.skillCategories.flatMap((c) => c.skills.map((s) => s.toLowerCase())),
-  );
-  incoming.skillCategories.forEach((incCat) => {
-    const newSkills = incCat.skills.filter(
-      (s) => !allExistingSkills.has(s.toLowerCase()),
-    );
-    if (newSkills.length > 0) {
-      if (merged.skillCategories.length > 0) {
-        merged.skillCategories[0].skills.push(...newSkills);
+      if (existingIdx >= 0) {
+        // Merge unique highlights
+        const existing = merged.experiences[existingIdx];
+        const existingHighlights = Array.isArray(existing.highlights)
+          ? existing.highlights
+          : [];
+        const incHighlights = Array.isArray(incExp.highlights)
+          ? incExp.highlights
+          : [];
+        const allHighlights = Array.from(
+          new Set([...existingHighlights, ...incHighlights]),
+        );
+        merged.experiences[existingIdx] = {
+          ...existing,
+          startDate: incExp.startDate || existing.startDate,
+          endDate: incExp.endDate || existing.endDate,
+          location: incExp.location || existing.location,
+          current:
+            incExp.current !== undefined ? incExp.current : existing.current,
+          highlights: allHighlights,
+        };
       } else {
-        merged.skillCategories.push({
-          id: `cat-${Date.now()}`,
-          categoryName: incCat.categoryName,
-          skills: newSkills,
+        merged.experiences.push({
+          ...incExp,
+          id:
+            incExp.id ||
+            `exp-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+          highlights: Array.isArray(incExp.highlights)
+            ? [...incExp.highlights]
+            : [],
         });
       }
-      newSkills.forEach((s) => allExistingSkills.add(s.toLowerCase()));
-    }
-  });
+    });
+  }
+
+  // Merge education by institution/degree
+  if (Array.isArray(incoming.education)) {
+    incoming.education.forEach((incEdu) => {
+      if (!incEdu || !incEdu.institution) return;
+      const incInst = incEdu.institution.trim().toLowerCase();
+      const incDegree = (incEdu.degree || "").trim().toLowerCase();
+      const existingIdx = merged.education.findIndex(
+        (e) =>
+          e.institution.trim().toLowerCase() === incInst &&
+          (!incDegree || (e.degree || "").trim().toLowerCase() === incDegree),
+      );
+      if (existingIdx < 0) {
+        merged.education.push({
+          ...incEdu,
+          id:
+            incEdu.id ||
+            `edu-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+          highlights: Array.isArray(incEdu.highlights)
+            ? [...incEdu.highlights]
+            : [],
+        });
+      }
+    });
+  }
+
+  // Merge skills
+  if (Array.isArray(incoming.skillCategories)) {
+    const allExistingSkills = new Set(
+      merged.skillCategories.flatMap((c) =>
+        c.skills.map((s) => s.toLowerCase()),
+      ),
+    );
+    incoming.skillCategories.forEach((incCat) => {
+      if (!incCat || !Array.isArray(incCat.skills)) return;
+      const newSkills = incCat.skills.filter(
+        (s) =>
+          s &&
+          typeof s === "string" &&
+          !allExistingSkills.has(s.trim().toLowerCase()),
+      );
+      if (newSkills.length > 0) {
+        if (merged.skillCategories.length > 0) {
+          merged.skillCategories[0].skills.push(...newSkills);
+        } else {
+          merged.skillCategories.push({
+            id: `cat-${Date.now()}`,
+            categoryName: incCat.categoryName || "Technical Skills",
+            skills: newSkills,
+          });
+        }
+        newSkills.forEach((s) => allExistingSkills.add(s.trim().toLowerCase()));
+      }
+    });
+  }
 
   // Merge projects
-  incoming.projects.forEach((incProj) => {
-    if (
-      !merged.projects.some(
-        (p) => p.title.toLowerCase() === incProj.title.toLowerCase(),
-      )
-    ) {
-      merged.projects.push(incProj);
-    }
-  });
+  if (Array.isArray(incoming.projects)) {
+    incoming.projects.forEach((incProj) => {
+      if (!incProj || !incProj.title) return;
+      const incTitle = incProj.title.trim().toLowerCase();
+      if (
+        !merged.projects.some((p) => p.title.trim().toLowerCase() === incTitle)
+      ) {
+        merged.projects.push({
+          ...incProj,
+          id:
+            incProj.id ||
+            `proj-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+          technologies: Array.isArray(incProj.technologies)
+            ? [...incProj.technologies]
+            : [],
+          bullets: Array.isArray(incProj.bullets) ? [...incProj.bullets] : [],
+        });
+      }
+    });
+  }
 
   // Merge certifications
-  incoming.certifications.forEach((incCert) => {
-    if (
-      !merged.certifications.some(
-        (c) => c.name.toLowerCase() === incCert.name.toLowerCase(),
-      )
-    ) {
-      merged.certifications.push(incCert);
-    }
-  });
+  if (Array.isArray(incoming.certifications)) {
+    incoming.certifications.forEach((incCert) => {
+      if (!incCert || !incCert.name) return;
+      const incName = incCert.name.trim().toLowerCase();
+      if (
+        !merged.certifications.some(
+          (c) => c.name.trim().toLowerCase() === incName,
+        )
+      ) {
+        merged.certifications.push({
+          ...incCert,
+          id:
+            incCert.id ||
+            `cert-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+        });
+      }
+    });
+  }
 
   return merged;
 }

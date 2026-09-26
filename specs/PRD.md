@@ -4,7 +4,7 @@
 
 **Privacy-First Resume & Cover Letter Builder** is a zero-telemetry, local-first web application enabling professionals to curate master career profiles, tailor job-targeted resumes, calculate real-time ATS match scores, generate customized cover letters, and export print-ready A4/US-Letter documents (Vector PDF, Microsoft Word DOCX, Markdown, and TXT).
 
-The application strictly enforces **100% client-side data sovereignty**: all user career histories, resumes, notes, and Bring-Your-Own-Key (BYOK) configurations remain inside the browser's local sandbox using IndexedDB (`idb`) and `localStorage`.
+The application enforces **client-side data sovereignty**: all user career histories, resumes, notes, and Bring-Your-Own-Key (BYOK) configurations are stored locally inside the browser's sandbox using IndexedDB (`idb`) and `localStorage` without any intermediary app servers or telemetry tracking. In offline or local heuristic/Ollama modes, no data leaves the user's device. When an optional cloud BYOK provider is configured and enabled, candidate and job data required for the operation is transmitted directly from the client browser to the chosen provider's API.
 
 ---
 
@@ -35,8 +35,8 @@ The application strictly enforces **100% client-side data sovereignty**: all use
 ### 3.2 BYOK AI ATS Matching & Curation
 
 - **Bring-Your-Own-Key (BYOK)**:
-  - Users provide their Gemini API key stored strictly in local browser storage (IndexedDB/localStorage) with optional obfuscation/encryption.
-  - Zero server relays of private user data. Optional local-fallback rule-based ATS analysis when offline or without an API key.
+  - Users provide their cloud API key (Gemini, OpenAI, Anthropic, Groq, OpenRouter) or local Ollama endpoint, stored strictly in local browser storage (IndexedDB/localStorage).
+  - No intermediary application servers or telemetry relays. Local heuristic engine and local Ollama run 100% on-device; cloud BYOK providers receive candidate and job data directly via their official APIs for requested operations.
 - **Job Description Analysis & ATS Scoring**:
   - Real-time lexical and semantic analysis comparing resume contents against pasted target JD.
   - Match score (0–100%), extracted matched keywords, critical missing keywords, and contextual bullet-point enhancement suggestions.
@@ -72,7 +72,7 @@ The application strictly enforces **100% client-side data sovereignty**: all use
 
 ## 4. Non-Functional Requirements & Privacy Contracts
 
-- **Data Sovereignty Contract**: No analytical tracking, telemetry, or server database write.
+- **Data Sovereignty Contract**: Zero analytical tracking, telemetry, or server database storage. In offline/local heuristic/Ollama modes, zero external data egress. When cloud BYOK is configured, direct client-to-provider API calls only.
 - **Offline Capability**: Fully functional offline; AI features gracefully fall back to local rule-based ATS heuristic analyzers when no network or key is available.
 - **Performance**: Sub-100ms UI interactions, zero sluggish rendering, optimized React 19 rendering.
 - **Accessibility**: High-contrast WCAG AA compliant color palettes, keyboard accessibility, semantic landmarks, and full touch support.

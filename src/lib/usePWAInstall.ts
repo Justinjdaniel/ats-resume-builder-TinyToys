@@ -19,9 +19,11 @@ export function usePWAInstall() {
         true;
     setIsInstalled(isStandalone);
 
-    // Detect iOS devices
+    // Detect iOS devices (including iPadOS reporting as Macintosh)
     const userAgent = window.navigator.userAgent.toLowerCase();
-    const isIOSDevice = /iphone|ipad|ipod/.test(userAgent);
+    const isIOSDevice =
+      /iphone|ipad|ipod/.test(userAgent) ||
+      (userAgent.includes("macintosh") && window.navigator.maxTouchPoints > 1);
     setIsIOS(isIOSDevice);
 
     const handleBeforeInstallPrompt = (e: Event) => {

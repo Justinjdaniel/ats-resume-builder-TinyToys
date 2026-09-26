@@ -35,4 +35,4 @@ Allow: /
 # in client-side browser storage (IndexedDB) or local Ollama instances.
 # No user PII or candidate data is stored on external web servers.
 
-Sitemap: /sitemap.xml
+Sitemap: https://curatecv.com/sitemap.xml

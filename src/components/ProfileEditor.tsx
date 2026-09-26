@@ -210,6 +210,73 @@ export const ProfileEditor: React.FC<Props> = ({ profile, onChange }) => {
     });
   };
 
+  // Project Handlers
+  const addProject = () => {
+    const newProj: ProjectItem = {
+      id: `proj-${Date.now()}`,
+      title: "New Project",
+      role: "Lead Architect",
+      technologies: ["TypeScript", "React"],
+      summary: "Architected high-performance distributed platform.",
+      bullets: [],
+    };
+    onChange({
+      ...profile,
+      projects: [...(profile.projects || []), newProj],
+    });
+  };
+
+  const updateProject = (id: string, field: keyof ProjectItem, value: any) => {
+    onChange({
+      ...profile,
+      projects: (profile.projects || []).map((p) =>
+        p.id === id ? { ...p, [field]: value } : p,
+      ),
+    });
+  };
+
+  const deleteProject = (id: string) => {
+    onChange({
+      ...profile,
+      projects: (profile.projects || []).filter((p) => p.id !== id),
+    });
+  };
+
+  // Certification Handlers
+  const addCertification = () => {
+    const newCert: CertificationItem = {
+      id: `cert-${Date.now()}`,
+      name: "AWS Certified Solutions Architect",
+      issuer: "Amazon Web Services",
+      date: "2023",
+      credentialUrl: "",
+    };
+    onChange({
+      ...profile,
+      certifications: [...(profile.certifications || []), newCert],
+    });
+  };
+
+  const updateCertification = (
+    id: string,
+    field: keyof CertificationItem,
+    value: any,
+  ) => {
+    onChange({
+      ...profile,
+      certifications: (profile.certifications || []).map((c) =>
+        c.id === id ? { ...c, [field]: value } : c,
+      ),
+    });
+  };
+
+  const deleteCertification = (id: string) => {
+    onChange({
+      ...profile,
+      certifications: (profile.certifications || []).filter((c) => c.id !== id),
+    });
+  };
+
   return (
     <div className="space-y-4">
       {/* Section Navigation Pills */}
@@ -261,6 +328,30 @@ export const ProfileEditor: React.FC<Props> = ({ profile, onChange }) => {
         >
           <GraduationCap className="w-3.5 h-3.5" />
           <span>Education ({profile.education.length})</span>
+        </button>
+        <button
+          id="tab-btn-projects"
+          onClick={() => setActiveSection("projects")}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
+            activeSection === "projects"
+              ? "bg-white text-stone-900 shadow-xs"
+              : "text-stone-600 hover:text-stone-900"
+          }`}
+        >
+          <FolderGit2 className="w-3.5 h-3.5" />
+          <span>Projects ({(profile.projects || []).length})</span>
+        </button>
+        <button
+          id="tab-btn-certifications"
+          onClick={() => setActiveSection("certifications")}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
+            activeSection === "certifications"
+              ? "bg-white text-stone-900 shadow-xs"
+              : "text-stone-600 hover:text-stone-900"
+          }`}
+        >
+          <Award className="w-3.5 h-3.5" />
+          <span>Certifications ({(profile.certifications || []).length})</span>
         </button>
       </div>
 
@@ -695,6 +786,234 @@ export const ProfileEditor: React.FC<Props> = ({ profile, onChange }) => {
                         updateEducation(edu.id, "endDate", e.target.value)
                       }
                       className="w-full text-xs px-2.5 py-1.5 border border-stone-200 rounded-md bg-stone-50/50"
+                    />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* 5. Projects Section */}
+      {activeSection === "projects" && (
+        <div id="form-projects-section" className="space-y-3">
+          <div className="flex items-center justify-between bg-white rounded-xl p-4 border border-stone-200 shadow-xs">
+            <div>
+              <h3 className="text-sm font-semibold text-stone-900">
+                Projects &amp; Open Source
+              </h3>
+              <p className="text-xs text-stone-500">
+                Key architectural contributions, applications, and system
+                designs.
+              </p>
+            </div>
+            <button
+              id="btn-add-project"
+              onClick={addProject}
+              className="flex items-center gap-1.5 text-xs px-3 py-1.5 bg-stone-900 text-white rounded-lg hover:bg-stone-800 transition-colors font-medium cursor-pointer"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>Add Project</span>
+            </button>
+          </div>
+
+          <div className="space-y-3">
+            {(profile.projects || []).map((proj) => (
+              <div
+                key={proj.id}
+                className="bg-white rounded-xl p-4 border border-stone-200 shadow-xs space-y-2.5"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-stone-800">
+                    {proj.title || "Untitled Project"}
+                  </span>
+                  <button
+                    onClick={() => deleteProject(proj.id)}
+                    className="text-stone-400 hover:text-red-600 p-1 cursor-pointer"
+                    title="Delete Project"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <div>
+                    <label className="block text-[11px] font-medium text-stone-600 mb-0.5">
+                      Project Title
+                    </label>
+                    <input
+                      type="text"
+                      value={proj.title}
+                      onChange={(e) =>
+                        updateProject(proj.id, "title", e.target.value)
+                      }
+                      className="w-full text-xs px-2.5 py-1.5 border border-stone-200 rounded-md bg-stone-50/50"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-medium text-stone-600 mb-0.5">
+                      Role (Optional)
+                    </label>
+                    <input
+                      type="text"
+                      value={proj.role || ""}
+                      onChange={(e) =>
+                        updateProject(proj.id, "role", e.target.value)
+                      }
+                      className="w-full text-xs px-2.5 py-1.5 border border-stone-200 rounded-md bg-stone-50/50"
+                    />
+                  </div>
+                  <div className="sm:col-span-2">
+                    <label className="block text-[11px] font-medium text-stone-600 mb-0.5">
+                      Technologies (comma-separated)
+                    </label>
+                    <input
+                      type="text"
+                      value={(proj.technologies || []).join(", ")}
+                      onChange={(e) =>
+                        updateProject(
+                          proj.id,
+                          "technologies",
+                          e.target.value
+                            .split(",")
+                            .map((s) => s.trim())
+                            .filter(Boolean),
+                        )
+                      }
+                      className="w-full text-xs px-2.5 py-1.5 border border-stone-200 rounded-md bg-stone-50/50"
+                    />
+                  </div>
+                  <div className="sm:col-span-2">
+                    <label className="block text-[11px] font-medium text-stone-600 mb-0.5">
+                      Project Link / URL (Optional)
+                    </label>
+                    <input
+                      type="text"
+                      value={proj.link || ""}
+                      onChange={(e) =>
+                        updateProject(proj.id, "link", e.target.value)
+                      }
+                      className="w-full text-xs px-2.5 py-1.5 border border-stone-200 rounded-md bg-stone-50/50"
+                      placeholder="https://github.com/..."
+                    />
+                  </div>
+                  <div className="sm:col-span-2">
+                    <label className="block text-[11px] font-medium text-stone-600 mb-0.5">
+                      Summary / Overview
+                    </label>
+                    <textarea
+                      rows={2}
+                      value={proj.summary}
+                      onChange={(e) =>
+                        updateProject(proj.id, "summary", e.target.value)
+                      }
+                      className="w-full text-xs px-2.5 py-1.5 border border-stone-200 rounded-md bg-stone-50/50 resize-y"
+                    />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* 6. Certifications Section */}
+      {activeSection === "certifications" && (
+        <div id="form-certifications-section" className="space-y-3">
+          <div className="flex items-center justify-between bg-white rounded-xl p-4 border border-stone-200 shadow-xs">
+            <div>
+              <h3 className="text-sm font-semibold text-stone-900">
+                Certifications &amp; Credentials
+              </h3>
+              <p className="text-xs text-stone-500">
+                Verified industry licenses, technical certificates, and
+                credentials.
+              </p>
+            </div>
+            <button
+              id="btn-add-certification"
+              onClick={addCertification}
+              className="flex items-center gap-1.5 text-xs px-3 py-1.5 bg-stone-900 text-white rounded-lg hover:bg-stone-800 transition-colors font-medium cursor-pointer"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>Add Certification</span>
+            </button>
+          </div>
+
+          <div className="space-y-3">
+            {(profile.certifications || []).map((cert) => (
+              <div
+                key={cert.id}
+                className="bg-white rounded-xl p-4 border border-stone-200 shadow-xs space-y-2.5"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-stone-800">
+                    {cert.name || "Untitled Certification"}
+                  </span>
+                  <button
+                    onClick={() => deleteCertification(cert.id)}
+                    className="text-stone-400 hover:text-red-600 p-1 cursor-pointer"
+                    title="Delete Certification"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <div>
+                    <label className="block text-[11px] font-medium text-stone-600 mb-0.5">
+                      Certificate Name
+                    </label>
+                    <input
+                      type="text"
+                      value={cert.name}
+                      onChange={(e) =>
+                        updateCertification(cert.id, "name", e.target.value)
+                      }
+                      className="w-full text-xs px-2.5 py-1.5 border border-stone-200 rounded-md bg-stone-50/50"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-medium text-stone-600 mb-0.5">
+                      Issuing Organization
+                    </label>
+                    <input
+                      type="text"
+                      value={cert.issuer}
+                      onChange={(e) =>
+                        updateCertification(cert.id, "issuer", e.target.value)
+                      }
+                      className="w-full text-xs px-2.5 py-1.5 border border-stone-200 rounded-md bg-stone-50/50"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-medium text-stone-600 mb-0.5">
+                      Date / Validity
+                    </label>
+                    <input
+                      type="text"
+                      value={cert.date}
+                      onChange={(e) =>
+                        updateCertification(cert.id, "date", e.target.value)
+                      }
+                      className="w-full text-xs px-2.5 py-1.5 border border-stone-200 rounded-md bg-stone-50/50"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-medium text-stone-600 mb-0.5">
+                      Credential URL (Optional)
+                    </label>
+                    <input
+                      type="text"
+                      value={cert.credentialUrl || ""}
+                      onChange={(e) =>
+                        updateCertification(
+                          cert.id,
+                          "credentialUrl",
+                          e.target.value,
+                        )
+                      }
+                      className="w-full text-xs px-2.5 py-1.5 border border-stone-200 rounded-md bg-stone-50/50"
+                      placeholder="https://..."
                     />
                   </div>
                 </div>
