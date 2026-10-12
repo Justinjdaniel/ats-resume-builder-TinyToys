@@ -2,4 +2,5 @@ allowBuilds:
   "@google/genai": true
   core-js: true
   esbuild: true
+  pnpm: true
   protobufjs: true
