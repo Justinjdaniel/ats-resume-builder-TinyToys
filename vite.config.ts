@@ -4,12 +4,15 @@ import path from "path";
 import { defineConfig } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
 
-const configuredBasePath = process.env.VITE_BASE_PATH || "/";
-const basePath = configuredBasePath.endsWith("/")
-  ? configuredBasePath
-  : `${configuredBasePath}/`;
+export default defineConfig(({ command }) => {
+  const isProd = command === "build";
+  const configuredBasePath =
+    process.env.VITE_BASE_PATH ||
+    (isProd ? "/ats-resume-builder-TinyToys/" : "/");
+  const basePath = configuredBasePath.endsWith("/")
+    ? configuredBasePath
+    : `${configuredBasePath}/`;
 
-export default defineConfig(() => {
   return {
     base: basePath,
     plugins: [
