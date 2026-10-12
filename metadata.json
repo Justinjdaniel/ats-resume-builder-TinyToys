@@ -1,0 +1,6 @@
+{
+  "name": "CurateCV",
+  "description": "Local-First ATS Resume & Cover Letter Curation Studio with multi-provider AI (Ollama, Gemini, OpenAI, Claude, Groq) and zero-telemetry client-side privacy. Built by Justin John D.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
