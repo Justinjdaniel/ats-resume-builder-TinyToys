@@ -36,6 +36,9 @@ jobs:
       - name: Test
         run: pnpm test
 
+      - name: Build static site
+        run: pnpm build
+
       - name: Deploy static site to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
         with:
